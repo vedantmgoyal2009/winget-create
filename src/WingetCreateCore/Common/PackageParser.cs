@@ -244,13 +244,20 @@ namespace Microsoft.WingetCreateCore
                     // Update DisplayVersion for each AppsAndFeaturesEntry
                     if (!string.IsNullOrEmpty(installerUpdate.DisplayVersion))
                     {
-                        newInstaller.AppsAndFeaturesEntries = new List<AppsAndFeaturesEntry>
+                        if (newInstaller.AppsAndFeaturesEntries != null)
                         {
-                            new AppsAndFeaturesEntry
+                            newInstaller.AppsAndFeaturesEntries[0].DisplayVersion = installerUpdate.DisplayVersion;
+                        }
+                        else
+                        {
+                            newInstaller.AppsAndFeaturesEntries = new List<AppsAndFeaturesEntry>
                             {
-                                DisplayVersion = installerUpdate.DisplayVersion,
-                            },
-                        };
+                                new AppsAndFeaturesEntry
+                                {
+                                    DisplayVersion = installerUpdate.DisplayVersion,
+                                },
+                            };
+                        }
                     }
 
                     // if the installerUpdate does not have a binary or url architecture specified, then just use what is specified in the installer.
@@ -476,21 +483,36 @@ namespace Microsoft.WingetCreateCore
 
             if (existingInstaller.AppsAndFeaturesEntries != null && newInstaller.AppsAndFeaturesEntries != null)
             {
-                // When --display-version is provided, AppsAndFeaturesEntries for the new installer will not be null
-                // and will contain a single entry.
-                string newDisplayVersion = newInstaller.AppsAndFeaturesEntries.FirstOrDefault().DisplayVersion;
-
-                // Set DisplayVersion for each new installer if it exists in the corresponding existing installer.
                 foreach (var existingAppsAndFeaturesEntry in existingInstaller.AppsAndFeaturesEntries)
                 {
-                    if (existingAppsAndFeaturesEntry.DisplayVersion != null)
+                    if (existingAppsAndFeaturesEntry.DisplayName != null && newInstaller.AppsAndFeaturesEntries.FirstOrDefault().DisplayName != null)
                     {
-                        existingAppsAndFeaturesEntry.DisplayVersion = newDisplayVersion ?? existingAppsAndFeaturesEntry.DisplayVersion;
-
-                        // Break on first match to avoid setting DisplayVersion for all entries.
-                        // We do not support updating multiple DisplayVersions under the same installer.
-                        break;
+                        existingAppsAndFeaturesEntry.DisplayName = newInstaller.AppsAndFeaturesEntries.FirstOrDefault().DisplayName;
                     }
+
+                    if (existingAppsAndFeaturesEntry.DisplayVersion != null && newInstaller.AppsAndFeaturesEntries.FirstOrDefault().DisplayVersion != null)
+                    {
+                        existingAppsAndFeaturesEntry.DisplayVersion = newInstaller.AppsAndFeaturesEntries.FirstOrDefault().DisplayVersion;
+                    }
+
+                    if (existingAppsAndFeaturesEntry.Publisher != null && newInstaller.AppsAndFeaturesEntries.FirstOrDefault().Publisher != null)
+                    {
+                        existingAppsAndFeaturesEntry.Publisher = newInstaller.AppsAndFeaturesEntries.FirstOrDefault().Publisher;
+                    }
+
+                    if (existingAppsAndFeaturesEntry.ProductCode != null && newInstaller.AppsAndFeaturesEntries.FirstOrDefault().ProductCode != null)
+                    {
+                        existingAppsAndFeaturesEntry.ProductCode = newInstaller.AppsAndFeaturesEntries.FirstOrDefault().ProductCode;
+                    }
+
+                    if (existingAppsAndFeaturesEntry.UpgradeCode != null && newInstaller.AppsAndFeaturesEntries.FirstOrDefault().UpgradeCode != null)
+                    {
+                        existingAppsAndFeaturesEntry.UpgradeCode = newInstaller.AppsAndFeaturesEntries.FirstOrDefault().UpgradeCode;
+                    }
+
+                    // Break on first match to avoid setting DisplayVersion for all entries.
+                    // We do not support updating multiple DisplayVersions under the same installer.
+                    break;
                 }
             }
         }
@@ -843,6 +865,17 @@ namespace Microsoft.WingetCreateCore
                 }
 
                 baseInstaller.ProductCode = propertyTable.Rows.Where(row => row[0] == "\"ProductCode\"").First()[1].Trim('"');
+                baseInstaller.AppsAndFeaturesEntries = new List<AppsAndFeaturesEntry>
+                {
+                    new AppsAndFeaturesEntry
+                    {
+                        DisplayName = propertyTable.Rows.Where(row => row[0] == "\"ProductName\"").First()[1].Trim('"'),
+                        DisplayVersion = propertyTable.Rows.Where(row => row[0] == "\"ProductVersion\"").First()[1].Trim('"'),
+                        Publisher = propertyTable.Rows.Where(row => row[0] == "\"Manufacturer\"").First()[1].Trim('"'),
+                        ProductCode = propertyTable.Rows.Where(row => row[0] == "\"ProductCode\"").First()[1].Trim('"'),
+                        UpgradeCode = propertyTable.Rows.Where(row => row[0] == "\"UpgradeCode\"").First()[1].Trim('"'),
+                    },
+                };
 
                 string archString = msiInfo.Information.Architecture;
 
