@@ -20,6 +20,14 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|AnyCPU">
+      <Configuration>Debug</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|AnyCPU">
+      <Configuration>Release</Configuration>
+      <Platform>AnyCPU</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <PostBuildEvent>
@@ -31,13 +39,13 @@
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.props" />
   <PropertyGroup>
     <ProjectGuid>154eb646-d902-41b5-9ce1-e78acc63aa0a</ProjectGuid>
-    <TargetPlatformVersion>10.0.22621.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.26100.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <DefaultLanguage>en-US</DefaultLanguage>
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <EntryPointProjectUniqueName>..\WingetCreateTestExeInstaller\WingetCreateTestExeInstaller.csproj</EntryPointProjectUniqueName>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-    <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>arm64|x64</AppxBundlePlatforms>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
@@ -46,10 +54,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <AppxBundle>Always</AppxBundle>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
+    <AppxBundle>Always</AppxBundle>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <AppxBundle>Always</AppxBundle>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <AppxBundle>Always</AppxBundle>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AppxBundle>Always</AppxBundle>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AppxBundle>Always</AppxBundle>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AppxBundle>Always</AppxBundle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <AppxBundle>Always</AppxBundle>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <AppxBundle>Always</AppxBundle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
