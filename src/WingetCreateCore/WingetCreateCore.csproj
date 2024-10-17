@@ -63,48 +63,44 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Condition="'$(IsWindows)'=='true' And '$(CI)'!='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\release\msi_ffi.dll">
+		<None Condition="'$(IsWindows)'=='true' And '$(IsX64)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\x86_64-pc-windows-msvc\release\msi_ffi.dll">
 			<Link>msi.dll</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Condition="'$(IsLinux)'=='true' And '$(CI)'!='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\release\libmsi_ffi.so">
-			<Link>libmsi.so</Link>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Condition="'$(IsOSX)'=='true' And '$(CI)'!='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\release\libmsi_ffi.dylib">
-			<Link>libmsi.dylib</Link>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-
-		<!-- Paths in CI are different than local development, due to cross-compilation. -->
-		<None Condition="'$(IsWindows)'=='true' And '$(IsX64)'=='true' And '$(CI)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\x86_64-pc-windows-msvc\release\msi_ffi.dll">
+		<None Condition="'$(IsWindows)'=='true' And '$(IsArm64)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\aarch64-pc-windows-msvc\release\msi_ffi.dll">
 			<Link>msi.dll</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Condition="'$(IsWindows)'=='true' And '$(IsArm64)'=='true' And '$(CI)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\aarch64-pc-windows-msvc\release\msi_ffi.dll">
-			<Link>msi.dll</Link>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Condition="'$(IsLinux)'=='true' And '$(IsX64)'=='true' And '$(CI)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\x86_64-unknown-linux-gnu\release\libmsi_ffi.so">
+		<None Condition="'$(IsLinux)'=='true' And '$(IsX64)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\x86_64-unknown-linux-gnu\release\libmsi_ffi.so">
 			<Link>libmsi.so</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Condition="'$(IsLinux)'=='true' And '$(IsArm64)'=='true' And '$(CI)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\aarch64-unknown-linux-gnu\release\libmsi_ffi.so">
+		<None Condition="'$(IsLinux)'=='true' And '$(IsArm64)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\aarch64-unknown-linux-gnu\release\libmsi_ffi.so">
 			<Link>libmsi.so</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Condition="'$(IsOSX)'=='true' And '$(IsArm64)'=='true' And '$(CI)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\aarch64-apple-darwin\release\libmsi_ffi.dylib">
+		<None Condition="'$(IsOSX)'=='true' And '$(IsArm64)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\aarch64-apple-darwin\release\libmsi_ffi.dylib">
 			<Link>libmsi.dylib</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 
-	<!-- The cargo build commands are only run when developing locally.
-	They are not run during CI, as the CI pipeline will build the rust-msi project beforehand. -->
-	<Target Name="PreBuild2" BeforeTargets="PreBuildEvent" Condition="'$(CI)'!='true'">
-        <Message Importance="high" Text="Running: cargo build --release --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
-		<Exec Command="cargo build --release --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
-    </Target>
+	<Target Name="CargoBuild_win_x86_64" Condition="'$(IsWindows)'=='true' And '$(IsX64)'=='true'" BeforeTargets="PreBuild;PreBuildEvent">
+		<Message Importance="high" Text="Running: cargo build --release --target x86_64-pc-windows-msvc --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
+		<Exec Command="cargo build --release --target x86_64-pc-windows-msvc --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
+	</Target>
+	<Target Name="CargoBuild_win_arm64" Condition="'$(IsWindows)'=='true' And '$(IsArm64)'=='true'" BeforeTargets="PreBuild;PreBuildEvent">
+		<Message Importance="high" Text="Running: cargo build --release --target aarch64-pc-windows-msvc --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
+		<Exec Command="cargo build --release --target aarch64-pc-windows-msvc --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
+	</Target>
+	<Target Name="CargoBuild_linux_x86_64" Condition="'$(IsLinux)'=='true' And '$(IsX64)'=='true'" BeforeTargets="PreBuild;PreBuildEvent">
+		<Message Importance="high" Text="Running: cargo build --release --target x86_64-unknown-linux-gnu --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
+		<Exec Command="cargo zigbuild --release --target x86_64-unknown-linux-gnu --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
+	</Target>
+	<Target Name="CargoBuild_linux_arm64" Condition="'$(IsLinux)'=='true' And '$(IsArm64)'=='true'" BeforeTargets="PreBuild;PreBuildEvent">
+		<Message Importance="high" Text="Running: cargo build --release --target aarch64-unknown-linux-gnu --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
+		<Exec Command="cargo zigbuild --release --target aarch64-unknown-linux-gnu --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
+	</Target>
 
 	<ItemGroup>
     <SchemaFiles Include="$(PkgMicrosoft_WindowsPackageManager_Utils)\content\schemas\JSON\manifests\v1.6.0\manifest.defaultLocale.1.6.0.json" ModelName="DefaultLocale" />

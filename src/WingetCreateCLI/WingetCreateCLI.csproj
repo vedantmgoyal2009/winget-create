@@ -13,6 +13,8 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <SelfContained>false</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
+    <!-- error AL1012: 'arm64' is not a valid setting for option 'platform' -->
+    <GenerateSatelliteAssembliesForCore>true</GenerateSatelliteAssembliesForCore>
 
     <IsWindows Condition="$(RuntimeIdentifier.StartsWith('win')) Or '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'=='true'">true</IsWindows>
   </PropertyGroup>
@@ -69,14 +71,6 @@
   </Target>
 
   <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <!-- The localized resources are dropped in \Localization\Resources as part of the patch file from TouchDown. We can't simply Include them, as they must appear to be under the
          Properties directory to be properly included. We can fake this by using the <Link> tag which includes them virtually under specified directory -->
     <EmbeddedResource Include="..\..\Localization\Resources\**\*.resx" LinkBase="Properties">
@@ -87,6 +81,9 @@
     <EmbeddedResource Update="Properties\Resources.resx">
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <Generator>PublicResXFileCodeGenerator</Generator>
+      <!-- error AL1012: 'arm64' is not a valid setting for option 'platform' -->
+      <StronglyTypedFileName>$(IntermediateOutputPath)\Resources.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
     </EmbeddedResource>
   </ItemGroup>
 
