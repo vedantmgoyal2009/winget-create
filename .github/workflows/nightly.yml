@@ -17,29 +17,10 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            dotnet-runtime: win-x64
-            rust-target: x86_64-pc-windows-msvc
-          - os: windows-latest
-            dotnet-runtime: win-arm64
-            rust-target: aarch64-pc-windows-msvc
-          - os: ubuntu-latest
-            dotnet-runtime: linux-x64
-            rust-target: x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
-            dotnet-runtime: linux-arm64
-            rust-target: aarch64-unknown-linux-gnu
-          - os: macos-latest
-            dotnet-runtime: osx-arm64
-            rust-target: aarch64-apple-darwin
-            bin-suffix: macos-arm64
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     defaults:
       run:
-        shell: bash
+        shell: pwsh
     steps:
       - uses: actions/checkout@v4
         with:
@@ -47,33 +28,42 @@ jobs:
           lfs: true
           persist-credentials: false
 
-      - uses: moonrepo/setup-rust@v1
-        with:
-          channel: stable
-          targets: ${{ matrix.rust-target }}
-          cache: false
-
-      - if: matrix.rust-target == 'aarch64-unknown-linux-gnu'
+      - name: Setup Rust and Zig
         run: |
-          sudo sed -i -e 's/deb mirror/deb [arch=amd64] mirror/g' /etc/apt/sources.list
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/arm64.list
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/arm64.list
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/arm64.list
-          echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-security main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/arm64.list
-          sudo dpkg --add-architecture arm64
-          sudo apt-get update && sudo apt-get install -y gcc-aarch64-linux-gnu
+          rustup target add aarch64-pc-windows-msvc
+          rustup target add x86_64-unknown-linux-gnu
+          rustup target add aarch64-unknown-linux-gnu
+          choco install zig
+          iex (iwr "https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.ps1").Content
+          cargo binstall cargo-zigbuild -y
 
-      - run: CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" cargo build -r --target ${{ matrix.rust-target }}
+      - name: Build rust-msi
+        run: |
+          cargo build --release --target x86_64-pc-windows-msvc
+          cargo build --release --target aarch64-pc-windows-msvc
+          cargo zigbuild --release --target x86_64-unknown-linux-gnu
+          cargo zigbuild --release --target aarch64-unknown-linux-gnu
         working-directory: src/WingetCreateCore/Common/Msi/rust-msi
 
-      - run: dotnet publish ./WingetCreateCLI.csproj -c Release -r ${{ matrix.dotnet-runtime }} --output ./output
+      - run: dotnet publish ./WingetCreateCLI.csproj -c Release -r win-x64 --output ./output/win-x64
         working-directory: src/WingetCreateCLI
 
-      - if: matrix.os != 'windows-latest'
-        run: mv src/WingetCreateCLI/output/WingetCreateCLI ./wingetcreate-${{ matrix.bin-suffix || matrix.dotnet-runtime }}
+      - run: dotnet publish ./WingetCreateCLI.csproj -c Release -r win-arm64 --output ./output/win-arm64
+        working-directory: src/WingetCreateCLI
 
-      - if: matrix.os == 'windows-latest'
-        run: mv src/WingetCreateCLI/output/WingetCreateCLI.exe ./wingetcreate-${{ matrix.dotnet-runtime }}.exe
+      - run: dotnet publish ./WingetCreateCLI.csproj -c Release -r linux-x64 --output ./output/linux-x64
+        working-directory: src/WingetCreateCLI
+
+      - run: dotnet publish ./WingetCreateCLI.csproj -c Release -r linux-arm64 --output ./output/linux-arm64
+        working-directory: src/WingetCreateCLI
+
+      - name: Rename binaries according to os and arch
+        run: |
+          @('win-x64', 'win-arm64', 'linux-x64', 'linux-arm64') | % {
+            $wc = get-item -Path .\$_\WingetCreateCLI$(if($_.StartsWith("win")){".exe"})
+            move-item $wc.fullname ./wingetcreate-$_$(if($_.StartsWith("win")){".exe"})
+          }
+        working-directory: src/WingetCreateCLI/output
 
       - name: Delete old release 🗑️
         run: |
@@ -81,12 +71,13 @@ jobs:
           gh release delete nightly -y --cleanup-tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
 
       - uses: softprops/action-gh-release@v2
         with:
           name: Nightly release 🌙
           tag_name: nightly
           draft: false
-          files: wingetcreate-*
+          files: src/WingetCreateCLI/output/wingetcreate-*
           fail_on_unmatched_files: true
           token: ${{ secrets.GITHUB_TOKEN }}

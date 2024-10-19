@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -94,11 +94,11 @@
 		<Exec Command="cargo build --release --target aarch64-pc-windows-msvc --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
 	</Target>
 	<Target Name="CargoBuild_linux_x86_64" Condition="'$(IsLinux)'=='true' And '$(IsX64)'=='true'" BeforeTargets="PreBuild;PreBuildEvent">
-		<Message Importance="high" Text="Running: cargo build --release --target x86_64-unknown-linux-gnu --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
+		<Message Importance="high" Text="Running: cargo zigbuild --release --target x86_64-unknown-linux-gnu --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
 		<Exec Command="cargo zigbuild --release --target x86_64-unknown-linux-gnu --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
 	</Target>
 	<Target Name="CargoBuild_linux_arm64" Condition="'$(IsLinux)'=='true' And '$(IsArm64)'=='true'" BeforeTargets="PreBuild;PreBuildEvent">
-		<Message Importance="high" Text="Running: cargo build --release --target aarch64-unknown-linux-gnu --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
+		<Message Importance="high" Text="Running: cargo zigbuild --release --target aarch64-unknown-linux-gnu --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
 		<Exec Command="cargo zigbuild --release --target aarch64-unknown-linux-gnu --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
 	</Target>
 

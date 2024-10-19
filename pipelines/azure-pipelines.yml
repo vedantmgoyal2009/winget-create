@@ -21,6 +21,9 @@ variables:
   # Appx Package Directory
   appxPackageDir: '$(Build.ArtifactStagingDirectory)\AppxPackages'
 
+  # Portable executables directory
+  portableExecutablesDir: '$(Build.ArtifactStagingDirectory)\PortableExecutables'
+
   # WingetCreate Msix Bundle Directory
   wingetCreatePackageDir: '$(appxPackageDir)\WingetCreateMsixBundle'
 
@@ -34,14 +37,14 @@ variables:
   buildPlatform: "x64"
 
   # Target framework
-  targetFramework: "net6.0-windows10.0.22000.0"
+  targetFramework: "net8.0-windows10.0.26100.0"
 
 resources:
   repositories:
-  - repository: 1ESPipelineTemplates
-    type: git
-    name: 1ESPipelineTemplates/1ESPipelineTemplates
-    ref: refs/tags/release
+    - repository: 1ESPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
 
 extends:
   template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
@@ -51,7 +54,7 @@ extends:
       image: windows-2022
       os: windows
     customBuildTags:
-    - ES365AIMigrationTooling
+      - ES365AIMigrationTooling
     settings:
       skipBuildTagsForGitHubPullRequests: true
 
@@ -91,6 +94,7 @@ extends:
             steps:
               - checkout: self
                 lfs: "true"
+                submodules: true
 
               - task: PowerShell@2
                 displayName: Display version and bundle path for diagnosing
@@ -117,6 +121,23 @@ extends:
                   nugetConfigPath: "NuGet.config"
                   projects: $(workingDirectory)/**/*.csproj
 
+              - displayName: "Setup Rust, Zig"
+                pwsh: |
+                  rustup target add aarch64-pc-windows-msvc
+                  rustup target add x86_64-unknown-linux-gnu
+                  rustup target add aaarch64-unknown-linux-gnu
+                  choco install zig
+                  iex (iwr "https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.ps1").Content
+                  cargo binstall cargo-zigbuild -y
+
+              - displayName: Build rust-msi
+                pwsh: |
+                  cargo build --release --target x86_64-pc-windows-msvc
+                  cargo build --release --target aarch64-pc-windows-msvc
+                  cargo zigbuild --release --target x86_64-unknown-linux-gnu
+                  cargo zigbuild --release --target aarch64-unknown-linux-gnu
+                workingDirectory: $(workingDirectory)/WingetCreateCore/Common/Msi/rust-msi
+
               - task: MSBuild@1
                 displayName: Build Solution
                 inputs:
@@ -124,15 +145,59 @@ extends:
                   solution: "$(solution)"
                   configuration: "$(buildConfiguration)"
                   msbuildArguments: '/p:AppxBundleOutput="$(appxBundlePath)"
-                    /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly
                     /p:AppxPackageSigningEnabled=false'
+
+              - task: DotNetCoreCLI@2
+                displayName: "Publish (win-x64)"
+                inputs:
+                  command: "publish"
+                  projects: "WingetCreateCLI.csproj"
+                  arguments: "-c Release -r win-x64 --output ./output/win-x64"
+                  workingDirectory: "$(workingDirectory)/WingetCreateCLI"
+
+              - task: DotNetCoreCLI@2
+                displayName: "Publish (win-arm64)"
+                inputs:
+                  command: "publish"
+                  projects: "WingetCreateCLI.csproj"
+                  arguments: "-c Release -r win-arm64 --output ./output/win-arm64"
+                  workingDirectory: "$(workingDirectory)/WingetCreateCLI"
+
+              - task: DotNetCoreCLI@2
+                displayName: "Publish (linux-x64)"
+                inputs:
+                  command: "publish"
+                  projects: "WingetCreateCLI.csproj"
+                  arguments: "-c Release -r linux-x64 --output ./output/linux-x64"
+                  workingDirectory: "$(workingDirectory)/WingetCreateCLI"
+
+              - task: DotNetCoreCLI@2
+                displayName: "Publish (linux-arm64)"
+                inputs:
+                  command: "publish"
+                  projects: "WingetCreateCLI.csproj"
+                  arguments: "-c Release -r linux-arm64 --output ./output/linux-arm64"
+                  workingDirectory: "$(workingDirectory)/WingetCreateCLI"
 
               - task: 1ES.PublishPipelineArtifact@1
                 inputs:
                   targetPath: $(wingetCreatePackageDir)
                   artifactName: wingetcreate_msixbundle
                   displayName: Publish WingetCreate msix bundle
+
+              - pwsh: |
+                  @('win-x64', 'win-arm64', 'linux-x64', 'linux-arm64') | ForEach-Object {
+                    $wc = get-item ./$_/WingetCreateCLI$(if($_.StartsWith("win")){".exe"})
+                    move-item $wc.fullname $(portableExecutablesDir)\wingetcreate-$_$(if($_.StartsWith("win")){".exe"})
+                  }
+                workingDirectory: $(workingDirectory)/WingetCreateCLI/output
+
+              - task: 1ES.PublishPipelineArtifact@1
+                inputs:
+                  targetPath: $(portableExecutablesDir)
+                  artifactName: wingetcreate_exes
+                  displayName: Publish WingetCreate executables
 
               - task: ComponentGovernanceComponentDetection@0
                 displayName: Component Governance
