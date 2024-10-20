@@ -121,21 +121,16 @@ extends:
                   nugetConfigPath: "NuGet.config"
                   projects: $(workingDirectory)/**/*.csproj
 
-              - displayName: "Setup Rust, Zig"
-                pwsh: |
-                  rustup target add aarch64-pc-windows-msvc
-                  rustup target add x86_64-unknown-linux-gnu
-                  rustup target add aaarch64-unknown-linux-gnu
-                  choco install zig
-                  iex (iwr "https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.ps1").Content
-                  cargo binstall cargo-zigbuild -y
-
               - displayName: Build rust-msi
                 pwsh: |
+                  rustup target add aarch64-pc-windows-msvc
                   cargo build --release --target x86_64-pc-windows-msvc
                   cargo build --release --target aarch64-pc-windows-msvc
-                  cargo zigbuild --release --target x86_64-unknown-linux-gnu
-                  cargo zigbuild --release --target aarch64-unknown-linux-gnu
+                  docker run --rm -v ${pwd}:/io -w /io messense/cargo-zigbuild sh -c "
+                    cargo zigbuild --release --target x86_64-unknown-linux-gnu
+                    cargo zigbuild --release --target aarch64-unknown-linux-gnu
+                    cargo zigbuild --release --target aarch64-apple-darwin
+                  "
                 workingDirectory: $(workingDirectory)/WingetCreateCore/Common/Msi/rust-msi
 
               - task: MSBuild@1
@@ -180,6 +175,14 @@ extends:
                   arguments: "-c Release -r linux-arm64 --output ./output/linux-arm64"
                   workingDirectory: "$(workingDirectory)/WingetCreateCLI"
 
+              - task: DotNetCoreCLI@2
+                displayName: "Publish (osx-arm64)"
+                inputs:
+                  command: "publish"
+                  projects: "WingetCreateCLI.csproj"
+                  arguments: "-c Release -r osx-arm64 --output ./output/osx-arm64"
+                  workingDirectory: "$(workingDirectory)/WingetCreateCLI"
+
               - task: 1ES.PublishPipelineArtifact@1
                 inputs:
                   targetPath: $(wingetCreatePackageDir)
@@ -187,10 +190,11 @@ extends:
                   displayName: Publish WingetCreate msix bundle
 
               - pwsh: |
-                  @('win-x64', 'win-arm64', 'linux-x64', 'linux-arm64') | ForEach-Object {
+                  @('win-x64', 'win-arm64', 'linux-x64', 'linux-arm64', 'osx-arm64') | ForEach-Object {
                     $wc = get-item ./$_/WingetCreateCLI$(if($_.StartsWith("win")){".exe"})
                     move-item $wc.fullname $(portableExecutablesDir)\wingetcreate-$_$(if($_.StartsWith("win")){".exe"})
                   }
+                  move-item $(portableExecutablesDir)\wingetcreate-osx-arm64 $(portableExecutablesDir)\wingetcreate-macos-arm64
                 workingDirectory: $(workingDirectory)/WingetCreateCLI/output
 
               - task: 1ES.PublishPipelineArtifact@1

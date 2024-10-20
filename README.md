@@ -160,6 +160,7 @@ You can install the prerequisites in one of two ways:
   - MSVC - VS2022 C++ ARM64/ARM64EC build tools (Latest) (Individual component)
   - Windows 11 SDK (10.0.26100.0) (Individual component)
   - Microsoft Visual Studio Installer Projects 2022 (Extension)
+- Docker Desktop (only if you want to build for Linux/macOS on Windows)
 
 ### Building
 
