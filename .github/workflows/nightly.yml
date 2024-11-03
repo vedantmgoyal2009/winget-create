@@ -33,11 +33,10 @@ jobs:
           rustup target add aarch64-pc-windows-msvc
           cargo build --release --target x86_64-pc-windows-msvc
           cargo build --release --target aarch64-pc-windows-msvc
-          docker run --rm -v ${pwd}:/io -w /io vedantmgoyal9/cargo-zigbuild.windows sh -c "
-            cargo zigbuild --release --target x86_64-unknown-linux-gnu
-            cargo zigbuild --release --target aarch64-unknown-linux-gnu
-            cargo zigbuild --release --target aarch64-apple-darwin
-          "
+          $cmdstr = 'cargo zigbuild --release --target x86_64-unknown-linux-gnu && ' + 
+            'cargo zigbuild --release --target aarch64-unknown-linux-gnu && ' +
+            'cargo zigbuild --release --target aarch64-apple-darwin'
+          docker run --rm -v ${pwd}:/io -w /io vedantmgoyal/cargo-zigbuild.windows $cmdstr
         working-directory: src/WingetCreateCore/Common/Msi/rust-msi
 
       - run: dotnet publish ./WingetCreateCLI.csproj -c Release -r win-x64 --output ./output/win-x64
