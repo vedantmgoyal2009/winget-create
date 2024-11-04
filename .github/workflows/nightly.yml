@@ -36,7 +36,7 @@ jobs:
           $cmdstr = 'cargo zigbuild --release --target x86_64-unknown-linux-gnu && ' + 
             'cargo zigbuild --release --target aarch64-unknown-linux-gnu && ' +
             'cargo zigbuild --release --target aarch64-apple-darwin'
-          docker run --rm -v ${pwd}:/io -w /io vedantmgoyal/cargo-zigbuild.windows:main $cmdstr
+          docker run --rm -v ${pwd}:c:\io -w c:\io vedantmgoyal/cargo-zigbuild.windows:main $cmdstr
         working-directory: src/WingetCreateCore/Common/Msi/rust-msi
 
       - run: dotnet publish ./WingetCreateCLI.csproj -c Release -r win-x64 --output ./output/win-x64
