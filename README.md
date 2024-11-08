@@ -36,7 +36,8 @@ choco install wingetcreate
 
 ## Build status
 
-[![Build Status](https://dev.azure.com/ms/winget-create/_apis/build/status/microsoft.winget-create?branchName=main&label=winget-create)](https://dev.azure.com/ms/winget-create/_build/latest?definitionId=459&branchName=main)
+[![Build Status](https://dev.azure.com/ms/winget-create/_apis/build/status/microsoft.winget-create?branchName=main&label=winget-create)](https://dev.azure.com/ms/winget-create/_build/latest?definitionId=459&branchName=main)[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fvedantmgoyal9%2Fwinget-create.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fvedantmgoyal9%2Fwinget-create?ref=badge_shield)
+
 
 ## Using Windows Package Manager Manifest Creator
 
@@ -226,3 +227,7 @@ See the [privacy statement](/PRIVACY.md) for more details.
 ## Known Issues
 
 Certain functionalities of wingetcreate, particularly input prompting, may not be fully supported on certain shells such as PowerShell ISE. The supported shells for the prompting package utilized by wingetcreate are specified [here](https://github.com/shibayan/Sharprompt#supported-platforms)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fvedantmgoyal9%2Fwinget-create.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fvedantmgoyal9%2Fwinget-create?ref=badge_large)
