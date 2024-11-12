@@ -45,7 +45,7 @@
 		<PackageReference Include="jose-jwt" Version="5.0.0" />
 		<PackageReference Include="Microsoft.CorrelationVector" Version="1.0.42" />
 		<!--https://docs.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files#generatepathproperty-->
-    <PackageReference Include="Microsoft.WindowsPackageManager.Utils" Version="1.9.3" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.WindowsPackageManager.Utils" Version="1.9.25180" GeneratePathProperty="true" />
 		<PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
 		<PackageReference Include="NLog" Version="5.3.4" />
 		<PackageReference Include="NSwag.MSBuild" Version="14.1.0">

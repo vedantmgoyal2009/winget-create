@@ -45,24 +45,42 @@
     <None Update="Resources\Multifile.Yaml.GitHubAutoFillTest\Multifile.Yaml.GitHubAutoFillTest.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-		<None Update="Resources\Multifile.Yaml.MsixTest\Multifile.Yaml.MsixTest.locale.en-GB.yaml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Multifile.Yaml.MsixTest\Multifile.Yaml.MsixTest.installer.yaml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Multifile.Yaml.MsixTest\Multifile.Yaml.MsixTest.locale.en-US.yaml">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Multifile.Json.MsixTest\Multifile.Json.MsixTest.locale.en-GB.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Multifile.Json.MsixTest\Multifile.Json.MsixTest.installer.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Resources\Multifile.Json.MsixTest\Multifile.Json.MsixTest.locale.en-US.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
+    <None Update="Resources\Multifile.Yaml.MsixTest\Multifile.Yaml.MsixTest.locale.en-GB.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Multifile.Yaml.MsixTest\Multifile.Yaml.MsixTest.installer.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Multifile.Yaml.MsixTest\Multifile.Yaml.MsixTest.locale.en-US.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Multifile.Json.MsixTest\Multifile.Json.MsixTest.locale.en-GB.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Multifile.Json.MsixTest\Multifile.Json.MsixTest.installer.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\Multifile.Json.MsixTest\Multifile.Json.MsixTest.locale.en-US.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TestPublisher.FullYamlSingleton1_9.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TestPublisher.FullJsonSingleton1_9.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TestPublisher.FullJsonSingleton1_7.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TestPublisher.FullYamlSingleton1_7.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TestPublisher.FullYamlSingleton1_6.yaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TestPublisher.FullJsonSingleton1_6.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\TestPublisher.SingleInstallerWithMultipleDisplayVersions.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

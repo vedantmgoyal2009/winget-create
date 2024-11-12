@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>WingetCreateCLI</AssemblyName>
     <RootNamespace>Microsoft.WingetCreateCLI</RootNamespace>
-    <Version>1.6</Version>
+    <Version>1.9</Version>
     <Platforms>x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64;osx-arm64</RuntimeIdentifiers>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
