@@ -94,16 +94,16 @@
 		<Exec Command="cargo build --release --target aarch64-pc-windows-msvc --manifest-path $(ProjectDir)Common\Msi\rust-msi\Cargo.toml" />
 	</Target>
 	<Target Name="CargoBuild_linux_x86_64" Condition="'$(IsLinux)'=='true' And '$(IsX64)'=='true'" BeforeTargets="PreBuild;PreBuildEvent">
-		<Message Importance="high" Text="Running: docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:/io -w /io messense/cargo-zigbuild cargo zigbuild -r --target x86_64-unknown-linux-gnu" />
-		<Exec Command="docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:/io -w /io messense/cargo-zigbuild cargo zigbuild -r --target x86_64-unknown-linux-gnu" />
+		<Message Importance="high" Text="Running: docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:c:\io -w c:\io ghcr.io/rust-cross/cargo-zigbuild.windows:main cargo zigbuild -r --target x86_64-unknown-linux-gnu" />
+		<Exec Command="docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:c:\io -w c:\io ghcr.io/rust-cross/cargo-zigbuild.windows:main cargo zigbuild -r --target x86_64-unknown-linux-gnu" />
 	</Target>
 	<Target Name="CargoBuild_linux_arm64" Condition="'$(IsLinux)'=='true' And '$(IsArm64)'=='true'" BeforeTargets="PreBuild;PreBuildEvent">
-		<Message Importance="high" Text="Running: docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:/io -w /io messense/cargo-zigbuild cargo zigbuild -r --target aarch64-unknown-linux-gnu" />
-		<Exec Command="docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:/io -w /io messense/cargo-zigbuild cargo zigbuild -r --target aarch64-unknown-linux-gnu" />
+		<Message Importance="high" Text="Running: docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:c:\io -w c:\io ghcr.io/rust-cross/cargo-zigbuild.windows:main cargo zigbuild -r --target aarch64-unknown-linux-gnu" />
+		<Exec Command="docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:c:\io -w c:\io ghcr.io/rust-cross/cargo-zigbuild.windows:main cargo zigbuild -r --target aarch64-unknown-linux-gnu" />
 	</Target>
 	<Target Name="CargoBuild_osx_arm64" Condition="'$(IsOSX)'=='true' And '$(IsArm64)'=='true'" BeforeTargets="PreBuild;PreBuildEvent">
-		<Message Importance="high" Text="Running: docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:/io -w /io messense/cargo-zigbuild cargo zigbuild -r --target aarch64-apple-darwin" />
-		<Exec Command="docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:/io -w /io messense/cargo-zigbuild cargo zigbuild -r --target aarch64-apple-darwin" />
+		<Message Importance="high" Text="Running: docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:c:\io -w c:\io ghcr.io/rust-cross/cargo-zigbuild.windows:main cargo zigbuild -r --target aarch64-apple-darwin" />
+		<Exec Command="docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:c:\io -w c:\io ghcr.io/rust-cross/cargo-zigbuild.windows:main cargo zigbuild -r --target aarch64-apple-darwin" />
 	</Target>
 
 	<ItemGroup>
