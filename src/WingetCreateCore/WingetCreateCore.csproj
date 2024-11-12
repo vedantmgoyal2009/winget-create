@@ -103,7 +103,7 @@
 	</Target>
 	<Target Name="CargoBuild_osx_arm64" Condition="'$(IsOSX)'=='true' And '$(IsArm64)'=='true'" BeforeTargets="PreBuild;PreBuildEvent">
 		<Message Importance="high" Text="Running: docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:c:\io -w c:\io ghcr.io/rust-cross/cargo-zigbuild.windows:main cargo zigbuild -r --target aarch64-apple-darwin" />
-		<Exec Command="docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:c:\io -w c:\io ghcr.io/rust-cross/cargo-zigbuild.windows:main cargo zigbuild -r --target aarch64-apple-darwin" />
+		<Exec Command="docker run --rm -v $(ProjectDir)Common\Msi\rust-msi:c:\io -w c:\io ghcr.io/rust-cross/cargo-zigbuild.windows:main cargo zigbuild --target aarch64-apple-darwin" />
 	</Target>
 
 	<ItemGroup>
