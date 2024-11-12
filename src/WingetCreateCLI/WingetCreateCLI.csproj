@@ -13,18 +13,14 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <SelfContained>false</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
+
     <!-- error AL1012: 'arm64' is not a valid setting for option 'platform' -->
     <GenerateSatelliteAssembliesForCore>true</GenerateSatelliteAssembliesForCore>
 
-    <IsWindows Condition="$(RuntimeIdentifier.StartsWith('win')) Or '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'=='true'">true</IsWindows>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsWindows)'=='true'">
-    <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsWindows)'!='true'">
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework 
+      Condition="$(RuntimeIdentifier.StartsWith('win')) Or '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'=='true'"
+    >net8.0-windows10.0.26100.0</TargetFramework>
+    <TargetFramework Condition="'$(TargetFramework)'==''">net8.0</TargetFramework> 
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,7 +30,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
-    <PackageReference Condition="'$(IsWindows)'=='true'" Include="DesktopBridge.Helpers" Version="1.2.2" />
+    <PackageReference Include="DesktopBridge.Helpers" Version="1.2.2" />
     <PackageReference Include="NSwag.MSBuild" Version="14.1.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -44,7 +40,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Condition="'$(IsWindows)'=='true'" Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

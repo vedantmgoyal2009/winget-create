@@ -20,7 +20,6 @@ namespace Microsoft.WingetCreateCLI
         private const string UserHomeDirectoryShortcutUnix = "~";
         private const string LocalAppDataEnvironmentVariable = "%LOCALAPPDATA%";
         private const string TempEnvironmentVariable = "%TEMP%";
-        private const string TempDirectoryUnix = "/tmp";
 
         private static readonly Lazy<string> AppStatePathLazy = new(() =>
         {
@@ -89,17 +88,17 @@ namespace Microsoft.WingetCreateCLI
             string localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string tempPath = Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar);
 
-            if (path.StartsWith(tempPath, StringComparison.OrdinalIgnoreCase))
+            path = path.Replace("\\", Path.DirectorySeparatorChar.ToString());
+
+            if (path.StartsWith(tempPath, StringComparison.OrdinalIgnoreCase) && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? path.Replace(tempPath, TempEnvironmentVariable, StringComparison.OrdinalIgnoreCase)
-                    : path.Replace(tempPath, TempDirectoryUnix, StringComparison.OrdinalIgnoreCase);
+                return path.Replace(tempPath, TempEnvironmentVariable, StringComparison.OrdinalIgnoreCase);
             }
-            else if (path.StartsWith(localAppDataPath, StringComparison.OrdinalIgnoreCase))
+            else if (path.StartsWith(localAppDataPath, StringComparison.OrdinalIgnoreCase) && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return path.Replace(localAppDataPath, LocalAppDataEnvironmentVariable, StringComparison.OrdinalIgnoreCase);
             }
-            else if (path.StartsWith(userProfilePath, StringComparison.OrdinalIgnoreCase))
+            else if (path.StartsWith(userProfilePath, StringComparison.OrdinalIgnoreCase) && !path.StartsWith(localAppDataPath, StringComparison.OrdinalIgnoreCase))
             {
                 return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                     ? path.Replace(userProfilePath, UserProfileEnvironmentVariable, StringComparison.OrdinalIgnoreCase)

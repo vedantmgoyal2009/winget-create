@@ -19,6 +19,7 @@ namespace Microsoft.WingetCreateCore
     using System.Xml.Linq;
     using AsmResolver.PE;
     using AsmResolver.PE.Win32Resources;
+    using AsmResolver.PE.Win32Resources.Version;
     using Microsoft.WingetCreateCore.Common;
     using Microsoft.WingetCreateCore.Common.Exceptions;
     using Microsoft.WingetCreateCore.Common.Msi;
@@ -529,13 +530,22 @@ namespace Microsoft.WingetCreateCore
             InstallerManifest installerManifest = manifests.InstallerManifest;
             DefaultLocaleManifest defaultLocaleManifest = manifests.DefaultLocaleManifest;
 
-            var versionInfo = FileVersionInfo.GetVersionInfo(installerMetadata.PackageFile);
+            try
+            {
+                var versionInfoResource = VersionInfoResource.FromDirectory(PEImage.FromFile(installerMetadata.PackageFile).Resources);
+                var versionInfo = versionInfoResource.GetChild<StringFileInfo>("StringFileInfo").Tables.First();
 
-            defaultLocaleManifest.PackageVersion ??= versionInfo.FileVersion?.Trim() ?? versionInfo.ProductVersion?.Trim();
-            defaultLocaleManifest.Publisher ??= versionInfo.CompanyName?.Trim();
-            defaultLocaleManifest.PackageName ??= versionInfo.ProductName?.Trim();
-            defaultLocaleManifest.ShortDescription ??= versionInfo.FileDescription?.Trim();
-            defaultLocaleManifest.Copyright ??= versionInfo.LegalCopyright?.Trim();
+                defaultLocaleManifest.PackageVersion ??= versionInfo["FileVersion"]?.Trim() ?? versionInfo["ProductVersion"]?.Trim();
+                defaultLocaleManifest.Publisher ??= versionInfo["CompanyName"]?.Trim();
+                defaultLocaleManifest.PackageName ??= versionInfo["ProductName"]?.Trim();
+                defaultLocaleManifest.ShortDescription ??= versionInfo["FileDescription"]?.Trim();
+                defaultLocaleManifest.Description ??= versionInfo["Comments"]?.Trim();
+                defaultLocaleManifest.Copyright ??= versionInfo["LegalCopyright"]?.Trim();
+            }
+            catch (Exception ex) when (ex is BadImageFormatException || ex is KeyNotFoundException)
+            {
+                // do nothing
+            }
 
             if (ParsePackageAndGenerateInstallerNodes(installerMetadata, manifests))
             {
@@ -845,27 +855,34 @@ namespace Microsoft.WingetCreateCore
         {
             DefaultLocaleManifest defaultLocaleManifest = manifests?.DefaultLocaleManifest;
 
-            try
+            Msi msiInfo = new Msi(path);
+
+            // Subject is a mandatory property in an MSI, equals to ProductName in the Property table
+            // https://learn.microsoft.com/en-us/windows/win32/msi/summary-property-descriptions
+            if (msiInfo.Information.Subject == null)
             {
-                Msi msiInfo = new Msi(path);
-                Msi.MsiTable propertyTable = msiInfo.Tables.Where(table => table.Name == "Property").First();
+                // Binary isn't a valid MSI or wasn't an MSI, skip
+                return false;
+            }
 
-                bool isWix = msiInfo.Information.TableNames.Any(table_name => table_name.ToLower().Contains("wix")) ||
-                    propertyTable.Rows.Any(row => row[0].ToLower().Contains("wix") || row[1].ToLower().Contains("wix")) ||
-                    msiInfo.Information.CreatingApplication.ToLower().Contains("wix") ||
-                    msiInfo.Information.CreatingApplication.ToLower().Contains("windows installer xml");
+            Msi.MsiTable propertyTable = msiInfo.Tables.Where(table => table.Name == "Property").First();
 
-                SetInstallerType(baseInstaller, isWix ? InstallerType.Wix : InstallerType.Msi);
+            bool isWix = msiInfo.Information.TableNames.Any(table_name => table_name.ToLower().Contains("wix")) ||
+                propertyTable.Rows.Any(row => row[0].ToLower().Contains("wix") || row[1].ToLower().Contains("wix")) ||
+                msiInfo.Information.CreatingApplication.ToLower().Contains("wix") ||
+                msiInfo.Information.CreatingApplication.ToLower().Contains("windows installer xml");
 
-                if (defaultLocaleManifest != null)
-                {
-                    defaultLocaleManifest.PackageVersion ??= propertyTable.Rows.Where(row => row[0] == "\"ProductVersion\"").First()[1].Trim('"');
-                    defaultLocaleManifest.PackageName ??= propertyTable.Rows.Where(row => row[0] == "\"ProductName\"").First()[1].Trim('"');
-                    defaultLocaleManifest.Publisher ??= propertyTable.Rows.Where(row => row[0] == "\"Manufacturer\"").First()[1].Trim('"');
-                }
+            SetInstallerType(baseInstaller, isWix ? InstallerType.Wix : InstallerType.Msi);
 
-                baseInstaller.ProductCode = propertyTable.Rows.Where(row => row[0] == "\"ProductCode\"").First()[1].Trim('"');
-                baseInstaller.AppsAndFeaturesEntries = new List<AppsAndFeaturesEntry>
+            if (defaultLocaleManifest != null)
+            {
+                defaultLocaleManifest.PackageVersion ??= propertyTable.Rows.Where(row => row[0] == "\"ProductVersion\"").First()[1].Trim('"');
+                defaultLocaleManifest.PackageName ??= propertyTable.Rows.Where(row => row[0] == "\"ProductName\"").First()[1].Trim('"');
+                defaultLocaleManifest.Publisher ??= propertyTable.Rows.Where(row => row[0] == "\"Manufacturer\"").First()[1].Trim('"');
+            }
+
+            baseInstaller.ProductCode = propertyTable.Rows.Where(row => row[0] == "\"ProductCode\"").First()[1].Trim('"');
+            baseInstaller.AppsAndFeaturesEntries = new List<AppsAndFeaturesEntry>
                 {
                     new AppsAndFeaturesEntry
                     {
@@ -877,41 +894,35 @@ namespace Microsoft.WingetCreateCore
                     },
                 };
 
-                string archString = msiInfo.Information.Architecture;
+            string archString = msiInfo.Information.Architecture;
 
-                archString = archString.EqualsIC("Intel") ? "x86" :
-                    archString.EqualsIC("Intel64") ? "x64" :
-                    archString.EqualsIC("Arm64") ? "Arm64" :
-                    archString.EqualsIC("Arm") ? "Arm" : archString;
+            archString = archString.EqualsIC("Intel") ? "x86" :
+                archString.EqualsIC("Intel64") ? "x64" :
+                archString.EqualsIC("Arm64") ? "Arm64" :
+                archString.EqualsIC("Arm") ? "Arm" : archString;
 
-                baseInstaller.Architecture = archString.ToEnumOrDefault<Architecture>() ?? Architecture.Neutral;
+            baseInstaller.Architecture = archString.ToEnumOrDefault<Architecture>() ?? Architecture.Neutral;
 
-                if (baseInstaller.InstallerLocale == null)
+            if (baseInstaller.InstallerLocale == null)
+            {
+                string languageString = propertyTable.Rows.Where(row => row[0] == "\"ProductLanguage\"").First()[1].Trim('"');
+
+                if (int.TryParse(languageString, out int lcid))
                 {
-                    string languageString = propertyTable.Rows.Where(row => row[0] == "\"ProductLanguage\"").First()[1].Trim('"');
-
-                    if (int.TryParse(languageString, out int lcid))
+                    try
                     {
-                        try
-                        {
-                            baseInstaller.InstallerLocale = new CultureInfo(lcid).Name;
-                        }
-                        catch (Exception ex) when (ex is ArgumentOutOfRangeException || ex is CultureNotFoundException)
-                        {
-                            // If the lcid value is invalid, do nothing.
-                        }
+                        baseInstaller.InstallerLocale = new CultureInfo(lcid).Name;
+                    }
+                    catch (Exception ex) when (ex is ArgumentOutOfRangeException || ex is CultureNotFoundException)
+                    {
+                        // If the lcid value is invalid, do nothing.
                     }
                 }
-
-                newInstallers?.Add(baseInstaller);
-
-                return true;
             }
-            catch
-            {
-                // Binary isn't a valid MSI or wasn't an MSI, skip
-                return false;
-            }
+
+            newInstallers?.Add(baseInstaller);
+
+            return true;
         }
 
         private static bool ParseMsix(string path, Installer baseInstaller, Manifests manifests, List<Installer> newInstallers)
