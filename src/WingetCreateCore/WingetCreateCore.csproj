@@ -79,7 +79,7 @@
 			<Link>libmsi.so</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Condition="'$(IsOSX)'=='true' And '$(IsArm64)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\aarch64-apple-darwin\release\libmsi_ffi.dylib">
+		<None Condition="'$(IsOSX)'=='true' And '$(IsArm64)'=='true'" Include="$(MSBuildThisFileDirectory)\Common\Msi\rust-msi\target\aarch64-apple-darwin\debug\libmsi_ffi.dylib">
 			<Link>libmsi.dylib</Link>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
