@@ -1,10 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
 		<IsPackable>false</IsPackable>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<Platforms>x64;ARM64</Platforms>
+	  	<IsWindows Condition="$(RuntimeIdentifier.StartsWith('win')) Or '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))'=='true'">true</IsWindows>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(IsWindows)'=='true'">
+	  <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(IsWindows)'!='true'">
+	  <TargetFramework>net8.0</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
