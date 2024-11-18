@@ -20,7 +20,6 @@ namespace Microsoft.WingetCreateCLI
         private const string UserHomeDirectoryShortcutUnix = "~";
         private const string LocalAppDataEnvironmentVariable = "%LOCALAPPDATA%";
         private const string TempEnvironmentVariable = "%TEMP%";
-        private const string TempDirectoryUnix = "/tmp";
 
         private static readonly Lazy<string> AppStatePathLazy = new(() =>
         {
@@ -93,7 +92,7 @@ namespace Microsoft.WingetCreateCLI
             {
                 return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                     ? path.Replace(tempPath, TempEnvironmentVariable, StringComparison.OrdinalIgnoreCase)
-                    : path.Replace(tempPath, TempDirectoryUnix, StringComparison.OrdinalIgnoreCase);
+                    : path;
             }
             else if (path.StartsWith(localAppDataPath, StringComparison.OrdinalIgnoreCase))
             {

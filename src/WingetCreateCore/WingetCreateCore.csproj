@@ -42,6 +42,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="AsmResolver.PE" Version="5.5.1" />
+		<PackageReference Include="AsmResolver.PE.Win32Resources" Version="5.5.1" />
 		<PackageReference Include="jose-jwt" Version="5.0.0" />
 		<PackageReference Include="Microsoft.CorrelationVector" Version="1.0.42" />
 		<!--https://docs.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files#generatepathproperty-->
